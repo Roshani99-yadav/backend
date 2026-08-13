@@ -1,0 +1,21 @@
+{
+  "name": "Aarvisac-control-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Backend for Aarvisac Control Pvt. Ltd. marketing site - handles Contact and Get a Quote form submissions via SMTP email.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "mysql2": "^3.23.3",
+    "nodemailer": "^9.0.3"
+  }
+}
