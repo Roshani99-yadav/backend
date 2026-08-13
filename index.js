@@ -183,8 +183,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`Aarvisac Control server listening at http://localhost:${PORT}`);
   await initDb();
-});
-app.listen(PORT, async () => {
-  console.log(`Arvisac Control server listening at http://localhost:${PORT}`);
-  await initDb();
-});
+});
