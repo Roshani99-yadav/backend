@@ -61,15 +61,16 @@ router.get("/posts", async (req, res) => {
   try {
     const includeDrafts = req.query?.includeDrafts === "true";
 
-    const sql = includeDrafts
-      ? "SELECT * FROM `posts` ORDER BY `createdAt` DESC"
-      : "SELECT * FROM `posts` WHERE `status` = 'published' ORDER BY `createdAt` DESC";
+    if (getDbStatus()) {
+      const sql = includeDrafts
+        ? "SELECT * FROM `posts` ORDER BY `createdAt` DESC"
+        : "SELECT * FROM `posts` WHERE `status` = 'published' ORDER BY `createdAt` DESC";
 
-    const dbRes = await safeQuery(sql);
-
-    if (dbRes.ok) {
-      const formatted = dbRes.rows.map(parsePostRow);
-      return res.json({ success: true, posts: formatted });
+      const dbRes = await safeQuery(sql);
+      if (dbRes.ok) {
+        const formatted = dbRes.rows.map(parsePostRow);
+        return res.json({ success: true, posts: formatted });
+      }
     }
 
     const posts = includeDrafts
@@ -77,8 +78,8 @@ router.get("/posts", async (req, res) => {
       : memoryPosts.filter((p) => p && p.status === "published");
     return res.json({ success: true, posts });
   } catch (err) {
-    console.error("[GET /posts Fallback Catch]", err);
-    return res.json({ success: true, posts: memoryPosts });
+    console.error("[GET /posts Catch]", err);
+    return res.json({ success: true, posts: memoryPosts || [] });
   }
 });
 
