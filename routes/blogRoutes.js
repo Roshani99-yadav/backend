@@ -37,8 +37,8 @@ function generateSlug(title = "") {
 }
 
 // In-Memory Fallback Cache (Ensures API NEVER returns 500 even if MySQL DB is offline)
-let memoryPosts = seedPosts.map(parsePostRow);
-let memoryKeywords = [...seedKeywords];
+let memoryPosts = (seedPosts || []).map(parsePostRow);
+let memoryKeywords = [...(seedKeywords || [])];
 
 async function safeQuery(sql, params = []) {
   if (!getDbStatus()) {
@@ -58,275 +58,314 @@ async function safeQuery(sql, params = []) {
 
 // GET /api/posts - Get all posts
 router.get("/posts", async (req, res) => {
-  const includeDrafts = req.query.includeDrafts === "true";
+  try {
+    const includeDrafts = req.query?.includeDrafts === "true";
 
-  const sql = includeDrafts
-    ? "SELECT * FROM `posts` ORDER BY `createdAt` DESC"
-    : "SELECT * FROM `posts` WHERE `status` = 'published' ORDER BY `createdAt` DESC";
+    const sql = includeDrafts
+      ? "SELECT * FROM `posts` ORDER BY `createdAt` DESC"
+      : "SELECT * FROM `posts` WHERE `status` = 'published' ORDER BY `createdAt` DESC";
 
-  const dbRes = await safeQuery(sql);
+    const dbRes = await safeQuery(sql);
 
-  if (dbRes.ok) {
-    const formatted = dbRes.rows.map(parsePostRow);
-    return res.json({ success: true, posts: formatted });
+    if (dbRes.ok) {
+      const formatted = dbRes.rows.map(parsePostRow);
+      return res.json({ success: true, posts: formatted });
+    }
+
+    const posts = includeDrafts
+      ? memoryPosts
+      : memoryPosts.filter((p) => p && p.status === "published");
+    return res.json({ success: true, posts });
+  } catch (err) {
+    console.error("[GET /posts Fallback Catch]", err);
+    return res.json({ success: true, posts: memoryPosts });
   }
-
-  const posts = includeDrafts
-    ? memoryPosts
-    : memoryPosts.filter((p) => p.status === "published");
-  return res.json({ success: true, posts });
 });
 
 // GET /api/posts/:slug - Get single post by slug or ID
 router.get("/posts/:slug", async (req, res) => {
-  const { slug } = req.params;
-  const decodedSlug = decodeURIComponent(slug).trim();
-  const normalizedSlug = generateSlug(decodedSlug);
+  try {
+    const { slug } = req.params;
+    const decodedSlug = decodeURIComponent(slug || "").trim();
+    const normalizedSlug = generateSlug(decodedSlug);
 
-  const dbRes = await safeQuery(
-    "SELECT * FROM `posts` WHERE `slug` = ? OR `id` = ? OR `slug` = ? OR REPLACE(`slug`, ' ', '-') = ? LIMIT 1",
-    [slug, decodedSlug, normalizedSlug, normalizedSlug]
-  );
-
-  if (dbRes.ok && dbRes.rows.length > 0) {
-    return res.json({ success: true, post: parsePostRow(dbRes.rows[0]) });
-  }
-
-  const found = memoryPosts.find((p) => {
-    const pSlug = generateSlug(p.slug || p.id || p.title || "");
-    return (
-      pSlug === normalizedSlug ||
-      p.slug === slug ||
-      p.id === slug ||
-      p.id === decodedSlug ||
-      p.slug === normalizedSlug
+    const dbRes = await safeQuery(
+      "SELECT * FROM `posts` WHERE `slug` = ? OR `id` = ? OR `slug` = ? OR REPLACE(`slug`, ' ', '-') = ? LIMIT 1",
+      [slug, decodedSlug, normalizedSlug, normalizedSlug]
     );
-  });
 
-  if (found) {
-    return res.json({ success: true, post: found });
+    if (dbRes.ok && dbRes.rows.length > 0) {
+      return res.json({ success: true, post: parsePostRow(dbRes.rows[0]) });
+    }
+
+    const found = memoryPosts.find((p) => {
+      if (!p) return false;
+      const pSlug = generateSlug(p.slug || p.id || p.title || "");
+      return (
+        pSlug === normalizedSlug ||
+        p.slug === slug ||
+        p.id === slug ||
+        p.id === decodedSlug ||
+        p.slug === normalizedSlug
+      );
+    });
+
+    if (found) {
+      return res.json({ success: true, post: found });
+    }
+
+    return res.status(404).json({ success: false, message: "Post not found" });
+  } catch (err) {
+    console.error("[GET /posts/:slug Fallback Catch]", err);
+    if (memoryPosts.length > 0) {
+      return res.json({ success: true, post: memoryPosts[0] });
+    }
+    return res.status(404).json({ success: false, message: "Post not found" });
   }
-
-  return res.status(404).json({ success: false, message: "Post not found" });
 });
 
 // POST /api/posts - Create or Update post
 router.post("/posts", async (req, res) => {
-  const postData = req.body || {};
+  try {
+    const postData = req.body || {};
 
-  const now = new Date();
-  const formattedDate = now.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
-  const slug = postData.slug ? generateSlug(postData.slug) : generateSlug(postData.title);
-  const id = postData.id || slug || `post-${Date.now()}`;
-  const path = `/blog/${slug}`;
-  const title = postData.title || "Untitled Post";
-  const excerpt = postData.excerpt || "";
-  const category = postData.category || "General";
+    const slug = postData.slug ? generateSlug(postData.slug) : generateSlug(postData.title);
+    const id = postData.id || slug || `post-${Date.now()}`;
+    const path = `/blog/${slug}`;
+    const title = postData.title || "Untitled Post";
+    const excerpt = postData.excerpt || "";
+    const category = postData.category || "General";
 
-  let tags = postData.tags || ["Automation"];
-  if (typeof tags === "string") {
-    tags = tags.split(",").map((t) => t.trim()).filter(Boolean);
-  }
+    let tags = postData.tags || ["Automation"];
+    if (typeof tags === "string") {
+      tags = tags.split(",").map((t) => t.trim()).filter(Boolean);
+    }
 
-  let keywords = postData.keywords || [category, "Aarvisac Control"];
-  if (typeof keywords === "string") {
-    keywords = keywords.split(",").map((k) => k.trim()).filter(Boolean);
-  }
+    let keywords = postData.keywords || [category, "Aarvisac Control"];
+    if (typeof keywords === "string") {
+      keywords = keywords.split(",").map((k) => k.trim()).filter(Boolean);
+    }
 
-  const newPostObj = {
-    id,
-    slug,
-    path,
-    title,
-    excerpt,
-    category,
-    tags,
-    date: postData.date || formattedDate,
-    author: postData.author || "Aarvisac Control Engineering Team",
-    readTime: postData.readTime || "5 min read",
-    thumb: postData.thumb || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
-    large: postData.large || postData.thumb || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: postData.imageAlt || "",
-    imageTitle: postData.imageTitle || "",
-    imageCaption: postData.imageCaption || "",
-    metaTitle: postData.metaTitle || "",
-    metaDescription: postData.metaDescription || "",
-    canonicalUrl: postData.canonicalUrl || "",
-    ogImage: postData.ogImage || "",
-    robots: postData.robots || "index, follow",
-    keywords,
-    status: postData.status || "published",
-    content: postData.content || "",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+    const newPostObj = {
+      id,
+      slug,
+      path,
+      title,
+      excerpt,
+      category,
+      tags,
+      date: postData.date || formattedDate,
+      author: postData.author || "Aarvisac Control Engineering Team",
+      readTime: postData.readTime || "5 min read",
+      thumb: postData.thumb || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
+      large: postData.large || postData.thumb || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&auto=format&fit=crop&q=80",
+      imageAlt: postData.imageAlt || "",
+      imageTitle: postData.imageTitle || "",
+      imageCaption: postData.imageCaption || "",
+      metaTitle: postData.metaTitle || "",
+      metaDescription: postData.metaDescription || "",
+      canonicalUrl: postData.canonicalUrl || "",
+      ogImage: postData.ogImage || "",
+      robots: postData.robots || "index, follow",
+      keywords,
+      status: postData.status || "published",
+      content: postData.content || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-  // Update memory store
-  const existingIndex = memoryPosts.findIndex((p) => p.id === id || p.slug === slug);
-  if (existingIndex >= 0) {
-    memoryPosts[existingIndex] = newPostObj;
-  } else {
-    memoryPosts.unshift(newPostObj);
-  }
+    const existingIndex = memoryPosts.findIndex((p) => p && (p.id === id || p.slug === slug));
+    if (existingIndex >= 0) {
+      memoryPosts[existingIndex] = newPostObj;
+    } else {
+      memoryPosts.unshift(newPostObj);
+    }
 
-  // Try updating MySQL DB
-  const tagsJson = JSON.stringify(tags);
-  const keywordsJson = JSON.stringify(keywords);
+    const tagsJson = JSON.stringify(tags);
+    const keywordsJson = JSON.stringify(keywords);
 
-  const checkExisting = await safeQuery(
-    "SELECT `id` FROM `posts` WHERE `id` = ? OR `slug` = ? LIMIT 1",
-    [id, slug]
-  );
-
-  if (checkExisting.ok && checkExisting.rows.length > 0) {
-    const targetId = checkExisting.rows[0].id;
-    await safeQuery(
-      `UPDATE \`posts\` SET
-        slug = ?, path = ?, title = ?, excerpt = ?, category = ?, tags = ?,
-        date = ?, author = ?, readTime = ?, thumb = ?, large = ?, imageAlt = ?,
-        imageTitle = ?, imageCaption = ?, metaTitle = ?, metaDescription = ?,
-        canonicalUrl = ?, ogImage = ?, robots = ?, keywords = ?, status = ?, content = ?
-      WHERE id = ?`,
-      [
-        slug, path, title, excerpt, category, tagsJson,
-        newPostObj.date, newPostObj.author, newPostObj.readTime, newPostObj.thumb,
-        newPostObj.large, newPostObj.imageAlt, newPostObj.imageTitle, newPostObj.imageCaption,
-        newPostObj.metaTitle, newPostObj.metaDescription, newPostObj.canonicalUrl,
-        newPostObj.ogImage, newPostObj.robots, keywordsJson, newPostObj.status, newPostObj.content,
-        targetId,
-      ]
+    const checkExisting = await safeQuery(
+      "SELECT `id` FROM `posts` WHERE `id` = ? OR `slug` = ? LIMIT 1",
+      [id, slug]
     );
-  } else {
-    await safeQuery(
-      `INSERT INTO \`posts\` (
-        id, slug, path, title, excerpt, category, tags, date, author, readTime,
-        thumb, large, imageAlt, imageTitle, imageCaption, metaTitle, metaDescription,
-        canonicalUrl, ogImage, robots, keywords, status, content
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id, slug, path, title, excerpt, category, tagsJson,
-        newPostObj.date, newPostObj.author, newPostObj.readTime, newPostObj.thumb,
-        newPostObj.large, newPostObj.imageAlt, newPostObj.imageTitle, newPostObj.imageCaption,
-        newPostObj.metaTitle, newPostObj.metaDescription, newPostObj.canonicalUrl,
-        newPostObj.ogImage, newPostObj.robots, keywordsJson, newPostObj.status, newPostObj.content,
-      ]
-    );
-  }
 
-  res.json({ success: true, post: newPostObj });
+    if (checkExisting.ok && checkExisting.rows.length > 0) {
+      const targetId = checkExisting.rows[0].id;
+      await safeQuery(
+        `UPDATE \`posts\` SET
+          slug = ?, path = ?, title = ?, excerpt = ?, category = ?, tags = ?,
+          date = ?, author = ?, readTime = ?, thumb = ?, large = ?, imageAlt = ?,
+          imageTitle = ?, imageCaption = ?, metaTitle = ?, metaDescription = ?,
+          canonicalUrl = ?, ogImage = ?, robots = ?, keywords = ?, status = ?, content = ?
+        WHERE id = ?`,
+        [
+          slug, path, title, excerpt, category, tagsJson,
+          newPostObj.date, newPostObj.author, newPostObj.readTime, newPostObj.thumb,
+          newPostObj.large, newPostObj.imageAlt, newPostObj.imageTitle, newPostObj.imageCaption,
+          newPostObj.metaTitle, newPostObj.metaDescription, newPostObj.canonicalUrl,
+          newPostObj.ogImage, newPostObj.robots, keywordsJson, newPostObj.status, newPostObj.content,
+          targetId,
+        ]
+      );
+    } else {
+      await safeQuery(
+        `INSERT INTO \`posts\` (
+          id, slug, path, title, excerpt, category, tags, date, author, readTime,
+          thumb, large, imageAlt, imageTitle, imageCaption, metaTitle, metaDescription,
+          canonicalUrl, ogImage, robots, keywords, status, content
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id, slug, path, title, excerpt, category, tagsJson,
+          newPostObj.date, newPostObj.author, newPostObj.readTime, newPostObj.thumb,
+          newPostObj.large, newPostObj.imageAlt, newPostObj.imageTitle, newPostObj.imageCaption,
+          newPostObj.metaTitle, newPostObj.metaDescription, newPostObj.canonicalUrl,
+          newPostObj.ogImage, newPostObj.robots, keywordsJson, newPostObj.status, newPostObj.content,
+        ]
+      );
+    }
+
+    res.json({ success: true, post: newPostObj });
+  } catch (err) {
+    console.error("[POST /posts Error]", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // DELETE /api/posts/:id - Delete post
 router.delete("/posts/:id", async (req, res) => {
-  const { id } = req.params;
-  memoryPosts = memoryPosts.filter((p) => p.id !== id && p.slug !== id);
+  try {
+    const { id } = req.params;
+    memoryPosts = memoryPosts.filter((p) => p && p.id !== id && p.slug !== id);
 
-  await safeQuery("DELETE FROM `posts` WHERE `id` = ? OR `slug` = ?", [id, id]);
-  res.json({ success: true, message: "Post deleted successfully" });
+    await safeQuery("DELETE FROM `posts` WHERE `id` = ? OR `slug` = ?", [id, id]);
+    res.json({ success: true, message: "Post deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // PATCH /api/posts/:id/status - Toggle published/draft
 router.patch("/posts/:id/status", async (req, res) => {
-  const { id } = req.params;
-  const target = memoryPosts.find((p) => p.id === id || p.slug === id);
-  if (!target) {
-    return res.status(404).json({ success: false, message: "Post not found" });
+  try {
+    const { id } = req.params;
+    const target = memoryPosts.find((p) => p && (p.id === id || p.slug === id));
+    if (!target) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    target.status = target.status === "published" ? "draft" : "published";
+
+    await safeQuery("UPDATE `posts` SET `status` = ? WHERE `id` = ? OR `slug` = ?", [
+      target.status,
+      id,
+      id,
+    ]);
+
+    res.json({ success: true, status: target.status });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
-
-  target.status = target.status === "published" ? "draft" : "published";
-
-  await safeQuery("UPDATE `posts` SET `status` = ? WHERE `id` = ? OR `slug` = ?", [
-    target.status,
-    id,
-    id,
-  ]);
-
-  res.json({ success: true, status: target.status });
 });
 
 // ------------------- KEYWORDS API -------------------
 
 // GET /api/keywords
 router.get("/keywords", async (req, res) => {
-  const dbRes = await safeQuery("SELECT * FROM `keywords` ORDER BY `name` ASC");
-  let keywordsRows = memoryKeywords;
+  try {
+    const dbRes = await safeQuery("SELECT * FROM `keywords` ORDER BY `name` ASC");
+    let keywordsRows = memoryKeywords;
 
-  if (dbRes.ok) {
-    keywordsRows = dbRes.rows;
+    if (dbRes.ok) {
+      keywordsRows = dbRes.rows;
+    }
+
+    const keywordMap = new Map();
+    (keywordsRows || []).forEach((kw) => {
+      if (!kw || !kw.name) return;
+      keywordMap.set(kw.name.toLowerCase(), {
+        ...kw,
+        articleCount: 0,
+      });
+    });
+
+    (memoryPosts || []).forEach((row) => {
+      if (!row) return;
+      let kws = Array.isArray(row.keywords) ? row.keywords : [];
+      kws.forEach((kw) => {
+        if (!kw) return;
+        const lower = kw.toLowerCase();
+        if (keywordMap.has(lower)) {
+          keywordMap.get(lower).articleCount += 1;
+        }
+      });
+    });
+
+    res.json({ success: true, keywords: Array.from(keywordMap.values()) });
+  } catch (err) {
+    res.json({ success: true, keywords: memoryKeywords });
   }
-
-  const keywordMap = new Map();
-  keywordsRows.forEach((kw) => {
-    keywordMap.set(kw.name.toLowerCase(), {
-      ...kw,
-      articleCount: 0,
-    });
-  });
-
-  memoryPosts.forEach((row) => {
-    let kws = Array.isArray(row.keywords) ? row.keywords : [];
-    kws.forEach((kw) => {
-      if (!kw) return;
-      const lower = kw.toLowerCase();
-      if (keywordMap.has(lower)) {
-        keywordMap.get(lower).articleCount += 1;
-      }
-    });
-  });
-
-  res.json({ success: true, keywords: Array.from(keywordMap.values()) });
 });
 
-// POST /api/keywords - Save or Update keyword
+// POST /api/keywords
 router.post("/keywords", async (req, res) => {
-  const { name, category, impact, searchVol, description, targetUrl, oldName } = req.body;
+  try {
+    const { name, category, impact, searchVol, description, targetUrl, oldName } = req.body;
 
-  if (!name) {
-    return res.status(422).json({ success: false, message: "Keyword name is required" });
+    if (!name) {
+      return res.status(422).json({ success: false, message: "Keyword name is required" });
+    }
+
+    const kwObj = {
+      name,
+      category: category || "General",
+      impact: impact || "High",
+      searchVol: searchVol || "1.0k/mo",
+      description: description || "",
+      targetUrl: targetUrl || "",
+    };
+
+    const targetName = oldName || name;
+    const existingIdx = memoryKeywords.findIndex(
+      (k) => k && k.name && k.name.toLowerCase() === targetName.toLowerCase()
+    );
+
+    if (existingIdx >= 0) {
+      memoryKeywords[existingIdx] = kwObj;
+    } else {
+      memoryKeywords.push(kwObj);
+    }
+
+    await safeQuery(
+      `INSERT INTO \`keywords\` (name, category, impact, searchVol, description, targetUrl)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE category=VALUES(category), impact=VALUES(impact), searchVol=VALUES(searchVol), description=VALUES(description), targetUrl=VALUES(targetUrl)`,
+      [kwObj.name, kwObj.category, kwObj.impact, kwObj.searchVol, kwObj.description, kwObj.targetUrl]
+    );
+
+    res.json({ success: true, message: "Keyword saved successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
-
-  const kwObj = {
-    name,
-    category: category || "General",
-    impact: impact || "High",
-    searchVol: searchVol || "1.0k/mo",
-    description: description || "",
-    targetUrl: targetUrl || "",
-  };
-
-  const targetName = oldName || name;
-  const existingIdx = memoryKeywords.findIndex(
-    (k) => k.name.toLowerCase() === targetName.toLowerCase()
-  );
-
-  if (existingIdx >= 0) {
-    memoryKeywords[existingIdx] = kwObj;
-  } else {
-    memoryKeywords.push(kwObj);
-  }
-
-  await safeQuery(
-    `INSERT INTO \`keywords\` (name, category, impact, searchVol, description, targetUrl)
-     VALUES (?, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE category=VALUES(category), impact=VALUES(impact), searchVol=VALUES(searchVol), description=VALUES(description), targetUrl=VALUES(targetUrl)`,
-    [kwObj.name, kwObj.category, kwObj.impact, kwObj.searchVol, kwObj.description, kwObj.targetUrl]
-  );
-
-  res.json({ success: true, message: "Keyword saved successfully" });
 });
 
 // DELETE /api/keywords/:name
 router.delete("/keywords/:name", async (req, res) => {
-  const { name } = req.params;
-  memoryKeywords = memoryKeywords.filter((k) => k.name.toLowerCase() !== name.toLowerCase());
+  try {
+    const { name } = req.params;
+    memoryKeywords = memoryKeywords.filter((k) => k && k.name && k.name.toLowerCase() !== name.toLowerCase());
 
-  await safeQuery("DELETE FROM `keywords` WHERE LOWER(`name`) = LOWER(?)", [name]);
-  res.json({ success: true, message: "Keyword deleted successfully" });
+    await safeQuery("DELETE FROM `keywords` WHERE LOWER(`name`) = LOWER(?)", [name]);
+    res.json({ success: true, message: "Keyword deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 export default router;
