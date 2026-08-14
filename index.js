@@ -12,18 +12,27 @@ import blogRoutes from "./routes/blogRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = (process.env.CORS_ORIGIN || "")
+const defaultOrigins = [
+  "https://aarvisac.com",
+  "https://www.aarvisac.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5000",
+];
+
+const envOrigins = (process.env.CORS_ORIGIN || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow non-browser requests, unconfigured CORS_ORIGIN, wildcard *, or matched origins
+      // Allow non-browser requests, wildcard *, or matched origins
       if (
         !origin ||
-        allowedOrigins.length === 0 ||
         allowedOrigins.includes("*") ||
         allowedOrigins.includes(origin)
       ) {
@@ -32,6 +41,7 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
+    credentials: true,
   })
 );
 
