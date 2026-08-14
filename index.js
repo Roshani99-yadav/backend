@@ -36,6 +36,10 @@ app.use(
 
 app.use(express.json());
 
+app.get("/api/test-posts", (req, res) => {
+  res.json({ success: true, message: "test posts works" });
+});
+
 // Mount Blog & Keyword MySQL REST APIs
 app.use("/api", blogRoutes);
 
