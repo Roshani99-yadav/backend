@@ -8,16 +8,28 @@ function parsePostRow(row) {
   let tags = [];
   let keywords = [];
 
-  try {
-    tags = typeof row.tags === "string" ? JSON.parse(row.tags) : row.tags || [];
-  } catch (e) {
-    tags = row.tags ? [row.tags] : [];
+  if (Array.isArray(row.tags)) {
+    tags = row.tags;
+  } else if (typeof row.tags === "string") {
+    try {
+      tags = JSON.parse(row.tags);
+    } catch (e) {
+      tags = row.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    }
+  } else if (row.tags) {
+    tags = [row.tags];
   }
 
-  try {
-    keywords = typeof row.keywords === "string" ? JSON.parse(row.keywords) : row.keywords || [];
-  } catch (e) {
-    keywords = row.keywords ? row.keywords.split(",").map((k) => k.trim()) : [];
+  if (Array.isArray(row.keywords)) {
+    keywords = row.keywords;
+  } else if (typeof row.keywords === "string") {
+    try {
+      keywords = JSON.parse(row.keywords);
+    } catch (e) {
+      keywords = row.keywords.split(",").map((k) => k.trim()).filter(Boolean);
+    }
+  } else if (row.keywords) {
+    keywords = [row.keywords];
   }
 
   return {
