@@ -40,6 +40,10 @@ app.get("/api/test-posts", (req, res) => {
   res.json({ success: true, message: "test posts works" });
 });
 
+app.get("/api/posts-test", (req, res) => {
+  res.json({ success: true, message: "posts test works", posts: [] });
+});
+
 // Mount Blog & Keyword MySQL REST APIs
 app.use("/api", blogRoutes);
 
