@@ -29,18 +29,7 @@ const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
 app.use(
   cors({
-    origin(origin, callback) {
-      // Allow non-browser requests, wildcard *, or matched origins
-      if (
-        !origin ||
-        allowedOrigins.includes("*") ||
-        allowedOrigins.includes(origin)
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
   })
 );
