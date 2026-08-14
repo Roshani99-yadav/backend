@@ -20,8 +20,13 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "")
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow non-browser requests (no Origin header, e.g. curl/health checks)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow non-browser requests, unconfigured CORS_ORIGIN, wildcard *, or matched origins
+      if (
+        !origin ||
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes("*") ||
+        allowedOrigins.includes(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
