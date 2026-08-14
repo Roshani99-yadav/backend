@@ -36,104 +36,113 @@ export function getPool() {
 
 export const seedPosts = [
   {
-    id: "plc-vs-scada-vs-dcs",
-    slug: "plc-vs-scada-vs-dcs",
-    path: "/blog/plc-vs-scada-vs-dcs",
-    title: "PLC vs SCADA vs DCS: Choosing the Right Automation System for Your Plant",
-    excerpt: "PLC, SCADA and DCS are often used interchangeably, but they solve different problems. Here's how to tell them apart and choose the right one for your plant.",
+    id: "plc-scada-integration-services",
+    slug: "plc-scada-integration-services",
+    path: "/blog/plc-scada-integration-services",
+    title: "PLC SCADA Integration Services | Smart Industrial Automation",
+    excerpt: "For years, many industries relied on standalone automation systems. One machine handled production, another tracked performance, while someone else manually collected data. Today, that approach causes delays and downtime. Integrated PLC & SCADA systems connect your entire plant floor into one unified intelligent network.",
     category: "Automation",
-    tags: JSON.stringify(["Automation", "PLC", "SCADA", "DCS"]),
-    date: "12 Feb 2026",
+    tags: JSON.stringify(["Automation", "PLC", "SCADA", "Smart Industrial Automation"]),
+    date: "06 Aug 2026",
     author: "Aarvisac Control Engineering Team",
     readTime: "6 min read",
     thumb: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
     large: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "PLC SCADA DCS Automation Panel",
-    imageTitle: "PLC vs SCADA vs DCS Control Systems",
-    imageCaption: "Modern Industrial Control System Setup",
-    metaTitle: "PLC vs SCADA vs DCS: Choosing the Right Automation System",
-    metaDescription: "Detailed comparison guide between PLC, SCADA, and DCS systems for plant automation.",
-    canonicalUrl: "https://aarvisac.com/blog/plc-vs-scada-vs-dcs",
+    imageAlt: "PLC SCADA Integration Services",
+    imageTitle: "PLC SCADA Integration Services | Smart Industrial Automation",
+    imageCaption: "Integrated Industrial Automation & Control Architecture",
+    metaTitle: "PLC SCADA Integration Services | Smart Industrial Automation",
+    metaDescription: "Professional PLC SCADA integration services for smart industrial automation and centralized plant monitoring.",
+    canonicalUrl: "https://aarvisac.com/blog/plc-scada-integration-services",
     ogImage: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&auto=format&fit=crop&q=80",
     robots: "index, follow",
-    keywords: JSON.stringify(["PLC", "SCADA", "DCS", "Industrial Automation"]),
+    keywords: JSON.stringify(["PLC", "SCADA", "Industrial Automation", "Aarvisac Control"]),
     status: "published",
     content: `
-      <h2>Understanding PLC vs SCADA vs DCS</h2>
-      <p>PLC, SCADA and DCS are often used interchangeably, but they solve different problems. Here's how to tell them apart and choose the right one for your plant.</p>
-      <p>In modern industrial automation, selecting the optimal control system design is vital for operation efficiency, safety, and scalability. Below are key highlights to consider when evaluating your facility's requirements.</p>
-      <h3>Key Takeaways</h3>
+      <h2>PLC SCADA Integration Services | Smart Industrial Automation</h2>
+      <p>For years, many industries relied on standalone automation systems. One machine handled production, another tracked performance, while someone else manually collected operational logs. Today, that fragmented approach causes delays, high maintenance overheads, and unplanned downtime.</p>
+      <p>Modern industrial facilities require integrated PLC & SCADA architecture to connect field instruments, sensors, and controllers into a unified digital network.</p>
+      <h3>Key Benefits of Integrated Control Systems</h3>
       <ul>
-        <li>High operational uptime and minimal downtime.</li>
-        <li>Seamless integration with field instrumentation and sensors.</li>
-        <li>Scalable architecture for future plant expansions.</li>
+        <li>Real-time centralized visualization and supervisory monitoring.</li>
+        <li>Automated alarm logging and predictive breakdown alerts.</li>
+        <li>Seamless data acquisition and ERP system synchronization.</li>
       </ul>
       <blockquote class="blog-quote">
-        "Automation is not just about technology—it is about reliability, precision, and predictability in industrial processes."
+        "Integration turns isolated machine data into actionable operational intelligence."
       </blockquote>
-      <p>For more detailed technical consulting and turnkey engineering, reach out to our team at Aarvisac Control.</p>
+      <p>Contact the engineering experts at Aarvisac Control for custom turnkey PLC & SCADA integration tailored to your manufacturing requirements.</p>
     `,
   },
   {
-    id: "electrical-panel-upgrade-signs",
-    slug: "electrical-panel-upgrade-signs",
-    path: "/blog/electrical-panel-upgrade-signs",
-    title: "5 Warning Signs Your Electrical Control Panel Needs an Upgrade",
-    excerpt: "An aging control panel doesn't fail all at once — it gives warnings first. Here are five signs it's time to plan a retrofit before it costs you downtime.",
-    category: "Upgrades & Retrofits",
-    tags: JSON.stringify(["Upgrades & Retrofits", "Electrical Panel"]),
-    date: "28 Feb 2026",
+    id: "plc-control-panel-manufacturer-in-india",
+    slug: "plc-control-panel-manufacturer-in-india",
+    path: "/blog/plc-control-panel-manufacturer-in-india",
+    title: "PLC Control Panel Manufacturer in India | Complete Guide",
+    excerpt: "And if you've ever wondered why a modern manufacturing line runs with remarkable precision while another struggles with delays, unnecessary downtime, and inconsistent output, the answer usually lies inside the electrical control panel.",
+    category: "Automation",
+    tags: JSON.stringify(["Automation", "Electrical Panel", "PLC Control Panel"]),
+    date: "06 Aug 2026",
     author: "Aarvisac Control Engineering Team",
     readTime: "5 min read",
     thumb: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80",
     large: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "Electrical Control Panel Maintenance",
-    imageTitle: "Control Panel Retrofit Signs",
-    imageCaption: "Electrical Control Panel System Inspection",
-    metaTitle: "5 Warning Signs Your Electrical Control Panel Needs an Upgrade",
-    metaDescription: "Discover key warning signs of an aging electrical control panel and how retrofitting prevents downtime.",
-    canonicalUrl: "https://aarvisac.com/blog/electrical-panel-upgrade-signs",
+    imageAlt: "PLC Control Panel Manufacturer in India",
+    imageTitle: "PLC Control Panel Design and Manufacturing",
+    imageCaption: "Custom Built Industrial PLC Automation Control Panels",
+    metaTitle: "PLC Control Panel Manufacturer in India | Complete Guide",
+    metaDescription: "Leading custom PLC control panel manufacturer in India offering turnkey panel fabrication, testing, and commissioning.",
+    canonicalUrl: "https://aarvisac.com/blog/plc-control-panel-manufacturer-in-india",
     ogImage: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=1200&auto=format&fit=crop&q=80",
     robots: "index, follow",
-    keywords: JSON.stringify(["Electrical Panel", "Preventive Maintenance", "Control Systems"]),
+    keywords: JSON.stringify(["PLC Control Panel", "Electrical Panel", "Industrial Automation"]),
     status: "published",
     content: `
-      <h2>5 Warning Signs Your Electrical Control Panel Needs an Upgrade</h2>
-      <p>An aging control panel doesn't fail all at once — it gives warnings first. Here are five signs it's time to plan a retrofit before it costs you downtime.</p>
-      <h3>Frequent Nuisance Tripping</h3>
-      <p>If breakers or overloads trip without a clear heavy load increase, internal components may be degraded due to thermal stress.</p>
-      <h3>Obsolete Components & Lack of Spares</h3>
-      <p>Legacy PLCs, relays, or contactors that are discontinued pose massive risk during breakdowns.</p>
+      <h2>PLC Control Panel Manufacturer in India | Complete Guide</h2>
+      <p>And if you've ever wondered why a modern manufacturing line runs with remarkable precision while another struggles with delays, unnecessary downtime, and inconsistent output, the answer usually lies inside the electrical control panel.</p>
+      <p>As a leading PLC control panel manufacturer in India, Aarvisac Control designs, fabricates, and tests custom automation panels engineered for harsh industrial environments.</p>
+      <h3>What Makes a High-Performance PLC Control Panel?</h3>
+      <ul>
+        <li>Precision wiring layout with clear ferrule marking and thermal management.</li>
+        <li>High-grade IP-rated enclosures for dust and moisture protection.</li>
+        <li>Thorough factory acceptance testing (FAT) before site dispatch.</li>
+      </ul>
+      <p>Upgrade your factory power distribution and automation controls with turnkey engineering from Aarvisac Control.</p>
     `,
   },
   {
-    id: "preventive-maintenance-reduces-downtime",
-    slug: "preventive-maintenance-reduces-downtime",
-    path: "/blog/preventive-maintenance-reduces-downtime",
-    title: "Why Preventive Maintenance Is the Key to Reducing Industrial Downtime",
-    excerpt: "Unplanned downtime is one of the most expensive problems in manufacturing. A structured preventive maintenance program is still the most reliable fix.",
-    category: "Operations & Maintenance",
-    tags: JSON.stringify(["Operations & Maintenance", "Preventive Maintenance"]),
-    date: "10 Mar 2026",
+    id: "dcs-system-integrator-in-india",
+    slug: "dcs-system-integrator-in-india",
+    path: "/blog/dcs-system-integrator-in-india",
+    title: "DCS System Integrator in India: Complete Guide to Process Automation",
+    excerpt: "The real challenge isn't buying a Distributed Control System (DCS). It's making every controller, instrument, sensor, and production line speak the same language. That is where an experienced DCS system integrator makes all the difference.",
+    category: "Automation",
+    tags: JSON.stringify(["Automation", "DCS", "Process Automation"]),
+    date: "06 Aug 2026",
     author: "Aarvisac Control Engineering Team",
-    readTime: "5 min read",
+    readTime: "7 min read",
     thumb: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80",
     large: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "Industrial Preventive Maintenance Engineering",
-    imageTitle: "Preventive Maintenance for Downtime Reduction",
-    imageCaption: "Regular Plant Maintenance Work",
-    metaTitle: "Why Preventive Maintenance Reduces Industrial Downtime",
-    metaDescription: "Learn how structured preventive maintenance minimizes plant downtime and protects equipment.",
-    canonicalUrl: "https://aarvisac.com/blog/preventive-maintenance-reduces-downtime",
+    imageAlt: "DCS System Integrator in India",
+    imageTitle: "Distributed Control System (DCS) Engineering",
+    imageCaption: "Comprehensive Process Automation & DCS System Architecture",
+    metaTitle: "DCS System Integrator in India: Complete Guide to Process Automation",
+    metaDescription: "Expert DCS system integrator in India delivering end-to-end process control, redundancy, and automation solutions.",
+    canonicalUrl: "https://aarvisac.com/blog/dcs-system-integrator-in-india",
     ogImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=80",
     robots: "index, follow",
-    keywords: JSON.stringify(["Preventive Maintenance", "Industrial Automation"]),
+    keywords: JSON.stringify(["DCS", "Process Automation", "Industrial Automation"]),
     status: "published",
     content: `
-      <h2>Why Preventive Maintenance Is the Key to Reducing Industrial Downtime</h2>
-      <p>Unplanned downtime is one of the most expensive problems in manufacturing. A structured preventive maintenance program is still the most reliable fix.</p>
-      <h3>Scheduled Inspections & Thermal Imaging</h3>
-      <p>Regular thermal scans highlight loose connections and hot spots before component failure leads to catastrophic line stops.</p>
+      <h2>DCS System Integrator in India: Complete Guide to Process Automation</h2>
+      <p>The real challenge isn't buying a Distributed Control System (DCS). It's making every controller, instrument, sensor, and production line speak the same language. That is where an experienced DCS system integrator makes all the difference.</p>
+      <p>Distributed Control Systems handle continuous batch processes with high I/O counts, requiring fault tolerance, dual redundancy, and high operational uptime.</p>
+      <h3>Why Choose Aarvisac Control for DCS Integration?</h3>
+      <ul>
+        <li>Proven expertise in chemical, pharmaceutical, power, and manufacturing plants.</li>
+        <li>Dual-redundant CPU, power supply, and network architecture configuration.</li>
+        <li>End-to-end commissioning and 24/7 technical engineering support.</li>
+      </ul>
     `,
   },
 ];
