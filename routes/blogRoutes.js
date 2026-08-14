@@ -1,5 +1,5 @@
 import express from "express";
-import { getPool, seedPosts, seedKeywords } from "../db.js";
+import { getPool, seedPosts, seedKeywords, getDbStatus } from "../db.js";
 
 const router = express.Router();
 
@@ -41,6 +41,9 @@ let memoryPosts = seedPosts.map(parsePostRow);
 let memoryKeywords = [...seedKeywords];
 
 async function safeQuery(sql, params = []) {
+  if (!getDbStatus()) {
+    return { ok: false, err: new Error("DB offline") };
+  }
   try {
     const pool = getPool();
     const [rows] = await pool.query(sql, params);

@@ -8,6 +8,11 @@ const DB_PASSWORD = process.env.DB_PASSWORD || "";
 const DB_NAME = process.env.DB_NAME || "aarvisac_blog";
 
 let dbPool = null;
+let isDbAvailable = false;
+
+export function getDbStatus() {
+  return isDbAvailable;
+}
 
 export function getPool() {
   if (!dbPool) {
@@ -251,11 +256,13 @@ export async function initDb() {
       console.log("[MySQL] Seeded initial keywords successfully.");
     }
 
+    isDbAvailable = true;
     console.log(`[MySQL] Connected and schema verified for database '${DB_NAME}'`);
     return true;
   } catch (err) {
-    console.error("[MySQL Initialization Warning]", err.message);
-    console.warn("[MySQL] Server will run with API fallback if MySQL server is offline.");
+    isDbAvailable = false;
+    console.warn("[MySQL Initialization Warning]", err.message);
+    console.warn("[MySQL] Server running with High-Performance Memory Fallback.");
     return false;
   }
 }
