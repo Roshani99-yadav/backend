@@ -180,7 +180,8 @@ app.use((err, req, res, next) => {
   console.error("[server] Unhandled error:", err);
   res.status(500).json({
     success: false,
-    message: "Something went wrong. Please try again later.",
+    message: err?.message || "Something went wrong. Please try again later.",
+    stack: err?.stack,
   });
 });
 
