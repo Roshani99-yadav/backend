@@ -62,10 +62,12 @@ router.get("/posts/:slug", async (req, res, next) => {
   try {
     const pool = getPool();
     const { slug } = req.params;
+    const decodedSlug = decodeURIComponent(slug).trim();
+    const normalizedSlug = generateSlug(decodedSlug);
 
     const [rows] = await pool.query(
-      "SELECT * FROM `posts` WHERE `slug` = ? OR `id` = ? LIMIT 1",
-      [slug, slug]
+      "SELECT * FROM `posts` WHERE `slug` = ? OR `id` = ? OR `slug` = ? OR REPLACE(`slug`, ' ', '-') = ? LIMIT 1",
+      [slug, decodedSlug, normalizedSlug, normalizedSlug]
     );
 
     if (rows.length === 0) {
