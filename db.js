@@ -25,7 +25,7 @@ export function getPool() {
   return dbPool;
 }
 
-const seedPosts = [
+export const seedPosts = [
   {
     id: "plc-vs-scada-vs-dcs",
     slug: "plc-vs-scada-vs-dcs",
@@ -129,7 +129,7 @@ const seedPosts = [
   },
 ];
 
-const seedKeywords = [
+export const seedKeywords = [
   { name: "PLC", category: "Automation", impact: "High", searchVol: "12.5k/mo", description: "Programmable Logic Controller topics", targetUrl: "/blog/plc-vs-scada-vs-dcs" },
   { name: "SCADA", category: "Automation", impact: "High", searchVol: "18.2k/mo", description: "Supervisory Control and Data Acquisition", targetUrl: "/blog/plc-vs-scada-vs-dcs" },
   { name: "DCS", category: "Automation", impact: "Medium", searchVol: "9.1k/mo", description: "Distributed Control Systems", targetUrl: "/blog/plc-vs-scada-vs-dcs" },
