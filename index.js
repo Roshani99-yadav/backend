@@ -195,7 +195,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`Aarvisac Control server listening at http://localhost:${PORT}`);
-  await initDb();
+  initDb().catch((err) => {
+    console.warn("[MySQL Init Warning] Server running in memory fallback mode:", err.message);
+  });
 });

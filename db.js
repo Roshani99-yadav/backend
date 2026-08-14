@@ -148,6 +148,7 @@ export async function initDb() {
       port: DB_PORT,
       user: DB_USER,
       password: DB_PASSWORD,
+      connectTimeout: 3000,
     });
 
     await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;`);
