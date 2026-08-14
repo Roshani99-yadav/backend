@@ -46,6 +46,7 @@ async function safeQuery(sql, params = []) {
   }
   try {
     const pool = getPool();
+    if (!pool) return { ok: false, err: new Error("No pool") };
     const [rows] = await pool.query(sql, params);
     return { ok: true, rows };
   } catch (err) {
